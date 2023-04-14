@@ -1,12 +1,12 @@
 program da_blending
 
 !----------------------------------------------------------------------
-! Purpose:  WRFDA backgound/analysis blending scheme   
+! Purpose:  WRFDA backgound/analysis blending scheme
 !
-! Input     : fg          -- WRF model forecast (eg. wrfout_d01) 
-!             bg          -- Host model forecast (eg. wrfinput_d01) 
+! Input     : fg          -- WRF model forecast (eg. wrfout_d01)
+!             bg          -- Host model forecast (eg. wrfinput_d01)
 !
-! Output    : fg_blend    -- Blended background for WRFDA 
+! Output    : fg_blend    -- Blended background for WRFDA
 !           : filtered_fg -- Filtered WRF model forecast  (optional -debug 1)
 !           : filtered_bg -- Filtered Host model forecast (optional -debug 1)
 !           : filtered_diff -- Difference between filtered_bg and filtered_fg (optional -debug 1)
@@ -17,13 +17,13 @@ program da_blending
 !
 ! Usage:
 !
-!   da_blending.exe  [-fg filename] [-bg filename] [-o outputfile] 
+!   da_blending.exe  [-fg filename] [-bg filename] [-o outputfile]
 !                    [-Lx cut-off length-scale ] [-debug level] [-h]
 !
 !     -fg    Optional, WRFDA background from WRF forecast                 default - fg
 !     -bg    Optional, Host model forecast interpolated into WRF grid     default - bg
 !     -o     Optional, Blended bacground for WRFDA                        default - fg_blend
-!     -Lx    Optional, Cut-off length-scale (km) for Raymont filter       default - 1200 km 
+!     -Lx    Optional, Cut-off length-scale (km) for Raymont filter       default - 1200 km
 !     -debug Optional, debug level                      default - 0 ; > 0: output filtered files.
 !     -h     Show this help
 !
@@ -35,7 +35,7 @@ program da_blending
 
   implicit none
 
-  character (len=6), dimension(1:13) :: vNam 
+  character (len=6), dimension(1:13) :: vNam
 
   integer :: i, j, n, t, ierr
   integer :: nLat_fg, nLon_fg, nLev_fg
@@ -48,8 +48,8 @@ program da_blending
 
   real, dimension(:,:,:,:), allocatable :: fg, bg, var_out, fg_filtered, bg_filtered,var_work
   real, dimension(:,:),     allocatable :: field, field_work
-  real                                  :: eps, Lx 
-  real                                  :: Dx_fg, Dx_bg, Dx 
+  real                                  :: eps, Lx
+  real                                  :: Dx_fg, Dx_bg, Dx
 
   integer                               :: dbg_lev
 
@@ -156,10 +156,10 @@ program da_blending
   errmsg = trim(f_bg)
   if ( ierr /= nf90_noerr ) call nf90_handle_err(ierr, errmsg)
 
-  ierr = nf90_get_att(ncidfg, NF90_GLOBAL, "WEST-EAST_GRID_DIMENSION",  nLon_fg) 
+  ierr = nf90_get_att(ncidfg, NF90_GLOBAL, "WEST-EAST_GRID_DIMENSION",  nLon_fg)
   ierr = nf90_get_att(ncidfg, NF90_GLOBAL, "SOUTH-NORTH_GRID_DIMENSION",nLat_fg)
-  ierr = nf90_get_att(ncidfg, NF90_GLOBAL, "BOTTOM-TOP_GRID_DIMENSION", nLev_fg) 
-  ierr = nf90_get_att(ncidfg, NF90_GLOBAL, "DX",                          Dx_fg) 
+  ierr = nf90_get_att(ncidfg, NF90_GLOBAL, "BOTTOM-TOP_GRID_DIMENSION", nLev_fg)
+  ierr = nf90_get_att(ncidfg, NF90_GLOBAL, "DX",                          Dx_fg)
 
   ierr = nf90_get_att(ncidbg, NF90_GLOBAL, "WEST-EAST_GRID_DIMENSION",  nLon_bg)
   ierr = nf90_get_att(ncidbg, NF90_GLOBAL, "SOUTH-NORTH_GRID_DIMENSION",nLat_bg)
@@ -172,7 +172,7 @@ program da_blending
     Write(*,fmt='(a)')      "Error : Domain size NOT match"
     Write(*,fmt='(a,3(I5.1,1X))') "  WRF forecast = ", nLon_fg, nLat_fg, nLev_fg
     Write(*,fmt='(a,3(I5.1,1X))') "  Host model   = ", nLon_bg, nLat_bg, nLev_bg
-    call exit(-1) 
+    call exit(-1)
   end if
 
   if ( (Dx_fg - Dx_bg) > R_ZERO ) then
@@ -187,10 +187,10 @@ program da_blending
     call exit(-1)
   end if
 
-  if ( ( Dx_fg - 1000.) > R_ZERO ) Dx_fg = Dx_fg / 1000. 
+  if ( ( Dx_fg - 1000.) > R_ZERO ) Dx_fg = Dx_fg / 1000.
 
 !  if ( ( Lx - 0. ) < R_ZERO ) Lx = 4 * Dx_fg
-  if ( ( Lx - 0. ) < R_ZERO ) Lx = 1200 
+  if ( ( Lx - 0. ) < R_ZERO ) Lx = 1200
 
   eps = (tan(PI*Dx_fg/Lx))**(-6)
 
@@ -225,7 +225,7 @@ program da_blending
   endif
 
   n = ubound(vNam,1)
-  do i=1,n 
+  do i=1,n
 
     Write (*,*) "Blending backgrounds for "//trim(vNam(i))
 
@@ -279,18 +279,23 @@ program da_blending
       !field = reshape(fg(:,:,:,t), (/nLon*nLat,nLev/))
       field_work = reshape(var_work(:,:,:,t),(/(nLon+nbdy)*(nLat+nbdy),nLev/))
       call RAYMOND (field_work ,nLon+nbdy,nLat+nbdy,nLev,EPS)
-      var_work(:,:,:,t) = reshape(field_work, (/nLon+nbdy, nLat+nbdy, nLev/))      
-      var_out(:,:,:,t)  = var_work(nbdy/2:nLon+nbdy/2,nbdy/2:nLat+nbdy/2,:,t) 
+      write(*,*), "field_work[501838,34]",field_work(501839,35)
+      var_work(:,:,:,t) = reshape(field_work, (/nLon+nbdy, nLat+nbdy, nLev/))
+      write(*,*), "var_work[862,504,34]",var_work(862+1,504+1,34+1,t)
+      var_out(:,:,:,t)  = var_work(nbdy/2:nLon+nbdy/2,nbdy/2:nLat+nbdy/2,:,t)
+      write(*,*), "1var_out[843,485,34]",var_out(843+1,485+1,34+1,t)
       !field = reshape(var_out(:,:,:,t), (/nLon*nLat,nLev/))
       var_out(:,:,:,t) = var_out(:,:,:,t) + fg(:,:,:,t)
+      write(*,*), "2var_out[843,485,34]",var_out(843+1,485+1,34+1,t)
 
+      stop
       !field = reshape(bg(:,:,:,t), (/nLon*nLat, nLev/))
       !call RAYMOND (field ,nLon,nLat,nLev,EPS)
 
-      if ( dbg_lev > 0 ) then 
+      !if ( dbg_lev > 0 ) then
         !bg_filtered(:,:,:,t) = reshape(field, (/nLon, nLat, nLev/))
         !fg_filtered(:,:,:,t) = fg(:,:,:,t) - (var_out(:,:,:,t)-fg_filtered(:,:,:,t))
-      end if
+      !end if
     end do
 
     ierr = nf90_put_var(ncidout, varid, var_out)
@@ -359,6 +364,6 @@ contains
       ic = ichar(string(i:i))
       if (ic >= 65 .and. ic < 90) string(i:i) = char(ic+32)
     end do
-  end subroutine lcase 
+  end subroutine lcase
 
 end program da_blending

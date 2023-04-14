@@ -26,6 +26,7 @@ FFLAGS_Linux = -r8 -i4
 F90    = ifort
 F77    = ifort
 FFLAGS = -r8 # #-fw -CcdRR8 -Kfast,parallel  -Qa,d,i,p,t,x -Koptmsg=2
+#FFLAGS = -r8 -g -traceback -warn # #-fw -CcdRR8 -Kfast,parallel  -Qa,d,i,p,t,x -Koptmsg=2
 
 LDFLAG = "" #-Kparallel
 
