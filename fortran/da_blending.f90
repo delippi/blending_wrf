@@ -274,21 +274,18 @@ program da_blending
 
     do t=1, nTim
 
-      var_work(nbdy/2:nLon+nbdy/2,nbdy/2:nLat+nbdy/2,:,t) = bg(:,:,:,t)-fg(:,:,:,t)
+      var_work(1+nbdy/2:nLon+nbdy/2,1+nbdy/2:nLat+nbdy/2,:,t) = bg(:,:,:,t)-fg(:,:,:,t) !fix
+      !var_work(nbdy/2:nLon+nbdy/2,nbdy/2:nLat+nbdy/2,:,t) = bg(:,:,:,t)-fg(:,:,:,t) !orig
 
       !field = reshape(fg(:,:,:,t), (/nLon*nLat,nLev/))
       field_work = reshape(var_work(:,:,:,t),(/(nLon+nbdy)*(nLat+nbdy),nLev/))
       call RAYMOND (field_work ,nLon+nbdy,nLat+nbdy,nLev,EPS)
-      write(*,*), "field_work[501838,34]",field_work(501839,35)
       var_work(:,:,:,t) = reshape(field_work, (/nLon+nbdy, nLat+nbdy, nLev/))
-      write(*,*), "var_work[862,504,34]",var_work(862+1,504+1,34+1,t)
-      var_out(:,:,:,t)  = var_work(nbdy/2:nLon+nbdy/2,nbdy/2:nLat+nbdy/2,:,t)
-      write(*,*), "1var_out[843,485,34]",var_out(843+1,485+1,34+1,t)
+      var_out(:,:,:,t)  = var_work(1+nbdy/2:nLon+nbdy/2,1+nbdy/2:nLat+nbdy/2,:,t) !fix
+      !var_out(:,:,:,t)  = var_work(nbdy/2:nLon+nbdy/2,nbdy/2:nLat+nbdy/2,:,t) !orig
       !field = reshape(var_out(:,:,:,t), (/nLon*nLat,nLev/))
       var_out(:,:,:,t) = var_out(:,:,:,t) + fg(:,:,:,t)
-      write(*,*), "2var_out[843,485,34]",var_out(843+1,485+1,34+1,t)
 
-      stop
       !field = reshape(bg(:,:,:,t), (/nLon*nLat, nLev/))
       !call RAYMOND (field ,nLon,nLat,nLev,EPS)
 

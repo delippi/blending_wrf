@@ -2,7 +2,7 @@
 
 # Set the queueing options
 #SBATCH --ntasks=4   ## refer to the run_fcst task section in the workflow xml
-#SBATCH -t 6:40:00
+#SBATCH -t 0:40:00
 #SBATCH -A hfv3gfs
 # #SBATCH -qos debug
 #SBATCH -J blending
@@ -56,8 +56,8 @@ srun    ${BIN}/da_blending.exe -lx ${Lx} > ${LOG}/blend_main.log.${dtg0} -debug 
     fi
 #    cp fg_blend ${FG}/wrfinput_d0${nd}_${dtg0}.blend
     cp fg_blend wrfinput_d0${nd}_${dtg0}.blend
+exit
     cp fg_blend fg_blend_diag # lippi added to fix segfault.
-
 ## second step -- diagnose
 srun    ${BIN}/da_diagnose.exe > ${LOG}/blend_diag.log.${dtg0}
     if [[ `grep "Diagnose completed successfully" ${LOG}/blend_diag.log.${dtg0} | wc -l` -eq 0 ]]; then
