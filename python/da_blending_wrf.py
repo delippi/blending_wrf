@@ -16,7 +16,8 @@ pi = np.pi
 variables = ["U", "V", "T", "QVAPOR", "PH", "P", "MU", "U10", "V10", "T2", "Q2", "PSFC", "TH2"]
 nbdy = 40  # 20 on each side
 blend = True
-diagnose = True
+diagnose = False
+check_mean = True
 
 if blend:
     print("Starting blending")
@@ -98,11 +99,10 @@ if blend:
         glbT= np.transpose(glb)        # (954, 834, 50, 1)
         regT= np.transpose(reg)        # (954, 834, 50, 1)
 
-
-        nlon_start=int(nbdy/2)-1  # python indicies start at 0; subtract 1
-        nlon_end = int(nlon+nbdy/2)-1
-        nlat_start=int(nbdy/2)-1
-        nlat_end = int(nlat+nbdy/2)-1
+        nlon_start=int(nbdy/2)
+        nlon_end = int(nlon+nbdy/2)
+        nlat_start=int(nbdy/2)
+        nlat_end = int(nlat+nbdy/2)
 
         var_work[nlon_start:nlon_end, nlat_start:nlat_end, :] = glbT - regT
         field_work = var_work.reshape((nlon+nbdy)*(nlat+nbdy), nlev, order="F") #order="F" (FORTRAN)
@@ -122,6 +122,12 @@ if blend:
             reg_fg_nc.variables[var][:,:,:] = var_out
         if dim == 3:  #3D vars
             reg_fg_nc.variables[var][:,:,:,:] = var_out
+
+        if check_mean and dim == 2:
+            psfcmean_bg = np.mean(glb)
+            psfcmean_fg = np.mean(reg)
+            psfcmean_blend = np.mean(var_out)
+            print(f"{var} mean: fg={psfcmean_fg}; bg={psfcmean_bg}; blend={psfcmean_blend}")
 
     # Close nc files
     reg_fg_nc.close()  # blended file
