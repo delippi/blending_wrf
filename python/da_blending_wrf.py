@@ -1,12 +1,10 @@
 import tictoc
 tic = tictoc.tic()
 import numpy as np
-import os as _os
 import emcpy.utils.dateutils as _dateutils
 from netCDF4 import Dataset
 import raymond
 import balance
-import shutil
 import pdb
 
 model = "WRF"
@@ -17,7 +15,7 @@ variables = ["U", "V", "T", "QVAPOR", "PH", "P", "MU", "U10", "V10", "T2", "Q2",
 nbdy = 40  # 20 on each side
 blend = True
 diagnose = False
-check_mean = True
+check_mean = False
 
 if blend:
     print("Starting blending")
@@ -31,9 +29,6 @@ if blend:
     glb_Dx = glb_fg_nc.DX / 1000.0  # convert to km (13.5450869140625)
 
     #"/mnt/lfs4/BMC/wrfruc/RAPv5_may2021/cycle_test1/2021051223/wrfprd/wrfout_d01_2021-05-13_00_00_00"
-    print("copying file...")
-    shutil.copyfile("./fg","./fg_blend.nc")
-    print("copy done.")
     reg_fg = "./fg_blend.nc"
     # Open the blended file for updating the required vars (use a copy of the regional file)
     reg_fg_nc = Dataset(reg_fg, mode="a")
